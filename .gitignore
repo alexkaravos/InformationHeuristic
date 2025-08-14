@@ -1,0 +1,32 @@
+# Data - usually too large
+data/raw/
+data/processed/
+*.zip
+*.tar.gz
+
+# Weights - large files
+weights/pretrained/
+weights/trained/
+*.pth
+*.ckpt
+*.h5
+
+# Experiment outputs
+experiments/runs/
+experiments/logs/
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+*.egg-info/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
