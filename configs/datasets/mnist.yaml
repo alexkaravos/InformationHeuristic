@@ -1,0 +1,4 @@
+name: mnist
+data_folder: "data/mnist"
+normalize: False
+dataset: full

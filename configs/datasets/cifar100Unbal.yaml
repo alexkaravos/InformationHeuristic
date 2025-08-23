@@ -1,0 +1,5 @@
+dataset_name: "cifar100Unbal"
+data_folder: "data/cifar100"
+dataset_func: "cifar100_unbalanced_dataset"
+num_classes: 100
+in_channels: 3

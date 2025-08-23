@@ -1,0 +1,22 @@
+# @package _global_
+
+defaults:
+  - /datasets: speechcommands
+  - /models: wav2vecpooler
+  - /representations: barlowtwin
+  - _self_
+
+experiment_name: 'SpeechCommands_BarlowTwins'
+device: 'cuda'
+seed: 42
+save_dir: 'weights/speechcommands/representations/barlowtwin/'
+
+# These will override the defaults from representations/barlowtwin.yaml
+representations:
+  epochs: 100
+  batch_size: 128
+  lr: 1e-4
+  scheduler: ExponentialLR
+  gamma: 0.99
+  # lambda_param will be inherited from the defaults
+

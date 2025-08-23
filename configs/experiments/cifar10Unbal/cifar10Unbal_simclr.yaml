@@ -1,0 +1,19 @@
+defaults:
+  - /datasets: cifar10Unbal
+  - /models: resnet18
+  - /representations: simclr
+  - _self_
+
+experiment_name: "cifar10Unbal_simclr"
+device: "mps"
+seed: 42
+save_dir: "weights/cifar10Unbal/representations/simclr/"
+augmentation: cifar_aug1
+
+models:
+  in_channels: 3
+
+representations:
+  temperature: 0.4
+  epochs: 1000
+  batch_size: 1000

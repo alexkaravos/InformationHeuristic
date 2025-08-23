@@ -1,0 +1,5 @@
+# @package _global_
+
+models:
+  arch: "wav2vec_cls_pooler"
+  projection_dim: 512 # Recommended projection dimensionality from the Barlow Twins paper

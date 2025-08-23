@@ -1,0 +1,4 @@
+dataset_name: "cifar10Unbal"
+data_folder: "data/cifar10"
+num_classes: 10
+in_channels: 3

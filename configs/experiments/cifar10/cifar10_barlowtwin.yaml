@@ -1,0 +1,19 @@
+defaults:
+  - /datasets: cifar10
+  - /models: resnet18
+  - /representations: barlowtwin
+  - _self_
+
+experiment_name: "cifar10_barlowtwin"
+device: "mps"
+seed: 42
+save_dir: "weights/cifar10/representations/barlowtwin/"
+augmentation: cifar_aug1
+
+models:
+  in_channels: 3
+
+representations:
+  epochs: 1000
+  batch_size: 1000
+  lambda_param: 5e-3

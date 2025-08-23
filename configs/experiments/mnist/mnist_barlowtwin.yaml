@@ -1,0 +1,19 @@
+defaults:
+  - /datasets: mnist
+  - /models: resnet18
+  - /representations: barlowtwin
+  - _self_
+
+experiment_name: "mnist_barlowtwin"
+device: "mps"
+seed: 42
+save_dir: "weights/mnist/representations/barlowtwin/"
+augmentation: mnist_aug1
+
+models:
+  in_channels: 1
+
+representations:
+  epochs: 100
+  batch_size: 500
+  lambda_param: 5e-3

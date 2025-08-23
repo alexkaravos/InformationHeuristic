@@ -1,0 +1,9 @@
+defaults:
+- datasets: mnist
+- models: resnet18
+- representations: barlowtwin
+- _self_
+
+#Global Parameters
+seed: 42
+output_dir: "outputs"

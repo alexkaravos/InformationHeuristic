@@ -1,0 +1,8 @@
+method: barlowtwin
+loss: BarlowTwinsLoss
+lambda_param: 5e-3
+scheduler: ExponentialLR
+lr: 3e-3
+gamma: 0.98
+epochs: 500
+batch_size: 1000

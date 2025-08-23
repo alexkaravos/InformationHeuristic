@@ -1,0 +1,4 @@
+name: cifar20
+data_folder: "data/cifar100"
+normalize: False
+dataset: full

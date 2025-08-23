@@ -1,0 +1,5 @@
+dataset_name: "mnistUnbal"
+data_folder: "data/mnist"
+dataset_func: "mnist_unbalanced_dataset"
+num_classes: 10
+in_channels: 1
