@@ -1,0 +1,40 @@
+# @package _global_
+
+defaults:
+  - /datasets: speechcommands
+  - /models: transformer_dict
+  - _self_
+
+experiment_name: "speechcommands_iic_aug"
+device: "cpu"
+seed: 42
+transform: AudioTransform
+save_dir: "weights/speechcommands/augmentation_clustering/iic_aug_trfmer/"
+save_name: "iic_aug"
+
+clustering:
+  batch_size: 1000
+  epochs: 50
+  lr: 0.003
+  scheduler: "ExponentialLR"
+  gamma: 0.95
+  
+  
+models:
+  input_dim: 768
+  hidden_dim: 256
+  dim_feedforward: 1024
+  num_layers: 2
+  dropout_rate: 0.1
+  num_copies: 1
+  num_hidden_blocks: 1
+  k_start: 30
+  k_end: 40
+  k_step: 1
+  lamb_start: 0
+  lamb_end: 10
+  lamb_step: 1
+  lamb_factor: 1.1
+  
+
+  

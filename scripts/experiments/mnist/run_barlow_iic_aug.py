@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+
+"""
+Lambda sweep script for Barlow Twins training
+This script runs train_barlowtwin.py with different lambda values
+"""
+
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+
+def run_barlow_iic_aug():
+    """Run Barlow Twins training with different lambda values."""
+    
+    # List of lambda values to test, divided by 1000 from your input
+    lambda_values = [
+        0.0012, 0.0016, 0.00213, 0.00283, 0.00376, 0.005, 
+        0.00665, 0.00884, 0.01176, 0.01565, 0.02081
+    ]
+    
+    # Get the directory where this script is located
+    script_dir = Path(__file__).parent
+    train_script = script_dir / "train_iic_aug.py"
+    
+    print("Starting lambda Barlow Twins Representations with IIC clustering")
+    print(f"Lambda values to test: {lambda_values}")
+    print(f"Script location: {script_dir}")
+    print(f"Training script: {train_script}")
+    print("=" * 60)
+    
+    # Track results
+    successful_runs = []
+    failed_runs = []
+    
+    # Loop through each lambda value
+    for lmbda in lambda_values:
+        
+        lmbda = f"{lmbda*1000:.2f}"
+        representation_model_id = f'bt_r18_{lmbda}'
+        representation_model_path = f'weights/mnist/representations/barlowtwin/barlowtwin_resnet18_{lmbda}'
+        
+        
+        try:
+            # Run the training script with the current lambda
+            # Using Hydra's override syntax to change the lambda_param
+            result = subprocess.run([
+                sys.executable, 
+                str(train_script), 
+                f"representation_model_id={representation_model_id}",
+                f"representation_model_dir={representation_model_path}",
+                f'clustering.epochs=50',
+                f'clustering.num_aug_copies=5',
+            ], check=True, capture_output=False)
+            
+            print(f"Training completed successfully for lambda: {lmbda}")
+            successful_runs.append(lmbda)
+            
+        except subprocess.CalledProcessError as e:
+            print(f"Training failed for lambda: {lmbda}")
+            print(f"Error: {e}")
+            print("Continuing with next lambda...")
+            failed_runs.append(lmbda)
+        
+        except KeyboardInterrupt:
+            print(f"\nInterrupted during lambda: {lmbda}")
+            print("Stopping lambda sweep...")
+            break
+            
+        print("=" * 60)
+    
+    # Print summary
+    print(f"\nLambda sweep completed!")
+    print(f"Successful runs ({len(successful_runs)}): {successful_runs}")
+    if failed_runs:
+        print(f"Failed runs ({len(failed_runs)}): {failed_runs}")
+    print("Results saved in: weights/mnist/representations/barlowtwin/")
+    print("Each run saved in subdirectory: barlowtwin_resnet18_<lambda*1000>")
+
+
+if __name__ == "__main__":
+    run_barlow_iic_aug()

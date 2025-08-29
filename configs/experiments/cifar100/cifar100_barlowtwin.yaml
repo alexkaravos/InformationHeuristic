@@ -1,0 +1,27 @@
+# @package _global_
+
+defaults:
+  - /datasets: cifar100
+  - /models: resnet50
+  - /representations: barlowtwin
+  - _self_
+
+experiment_name: "cifar100_barlowtwin"
+device: "cuda"
+seed: 42
+save_dir: "weights/cifar100/representations/barlowtwin/"
+augmentation: cifar_aug1
+
+
+representations:
+  epochs: 100
+  lr: 1e-3
+  scheduler: ExponentialLR
+  gamma: 0.98
+  batch_size: 1000
+  optimizer: sgd
+  momentum: 0.9
+  weight_decay: 1e-6
+
+models:
+  final_batchnorm: true

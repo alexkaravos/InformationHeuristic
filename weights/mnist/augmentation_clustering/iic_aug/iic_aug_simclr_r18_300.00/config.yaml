@@ -1,0 +1,45 @@
+datasets:
+  name: mnist
+  data_folder: data/mnist
+  normalize: false
+  dataset: full
+models:
+  name: mlp_dict
+  num_blocks: 2
+  input_dim: 512
+  hidden_dim: 1024
+  dropout_rate: 0.1
+  num_copies: 3
+  lamb_factor: 1.15
+  lamb_start: 3
+  lamb_end: 13
+  lamb_step: 1
+  k_start: 10
+  k_end: 11
+  k_step: 1
+  in_channels: 1
+clustering:
+  name: augmentation_clustering
+  lr: 0.005
+  scheduler: ExponentialLR
+  gamma: 0.9
+  epochs: 30
+  batch_size: 1000
+  num_aug_copies: 5
+representations:
+  method: barlowtwin
+  loss: BarlowTwinsLoss
+  lambda_param: 0.005
+  scheduler: ExponentialLR
+  lr: 0.003
+  gamma: 0.98
+  epochs: 500
+  batch_size: 1000
+experiment_name: mnist_iic_aug_barlow
+device: cuda
+seed: 42
+save_dir: weights/mnist/augmentation_clustering/iic_aug/
+save_name: iic_aug
+augmentation: mnist_aug1
+representation_model_dir: weights/mnist/representations/simclr/simclr_resnet18_300.00
+representation_model_id: simclr_r18_300.00

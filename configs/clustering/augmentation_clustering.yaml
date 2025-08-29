@@ -1,0 +1,8 @@
+name: "augmentation_clustering"
+lr: 1e-3
+scheduler: "ExponentialLR"
+gamma: 0.99
+epochs: 25
+batch_size: 2000
+num_aug_copies: 10
+

@@ -1,0 +1,13 @@
+name: "mlp_dict"
+num_blocks: 1
+input_dim: 512
+hidden_dim: 1024
+dropout_rate: 0.1
+num_copies: 3
+lamb_factor: 1.1
+lamb_start: 0
+lamb_end: 10
+lamb_step: 1
+k_start: 9
+k_end: 12
+k_step: 1

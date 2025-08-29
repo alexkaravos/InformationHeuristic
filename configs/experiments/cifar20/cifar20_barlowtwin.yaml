@@ -1,0 +1,21 @@
+# @package _global_
+
+defaults:
+  - /datasets: mnist
+  - /models: resnet18
+  - /representations: barlowtwin
+  - _self_
+
+experiment_name: "mnist_barlowtwin"
+device: "cuda"
+seed: 42
+save_dir: "weights/cifar100/representations/barlowtwin/"
+augmentation: mnist_aug1
+
+models:
+  in_channels: 1
+
+representations:
+  epochs: 300
+  batch_size: 1000
+  lambda_param: 5e-3

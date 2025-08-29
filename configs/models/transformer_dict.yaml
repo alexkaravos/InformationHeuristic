@@ -1,0 +1,13 @@
+name: "transformer_dict"
+num_layers: 2
+input_dim: 768
+dim_feedforward: 1048
+dropout_rate: 0.1
+num_copies: 1
+lamb_factor: 1.2
+lamb_start: 0
+lamb_end: 10
+lamb_step: 1
+k_start: 9
+k_end: 12
+k_step: 1

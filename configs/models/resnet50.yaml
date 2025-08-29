@@ -1,0 +1,6 @@
+arch: resnet50
+in_channels: 3
+proj_dim: 1024
+hidden_dim: 4096
+small_images: true 
+final_batchnorm: false
