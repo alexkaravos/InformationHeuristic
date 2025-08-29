@@ -64,3 +64,27 @@ class DoubleAugmentedDataset(torch.utils.data.Dataset):
             img = self.normalize(img)
         return x1,x2,img,label
     
+
+class AugRepresentationDataset(torch.utils.data.Dataset):
+    """
+    Dataset class containing the augs, originals, and labels. Returns 
+    a tuple of (num_augs,org,labels)
+    """
+    def __init__(self,augmentations,originals,labels,num_augs_return=2):
+        self.augmentations = augmentations
+        self.originals = originals
+        self.labels = labels
+        self.num_augs = augmentations.shape[1]
+        self.num_augs_return = num_augs_return   
+    def __len__(self):
+        return len(self.originals)
+    
+    def __getitem__(self,index):
+        #randomly samples num_augs_return from the num_augs
+        aug_indices = torch.randperm(self.num_augs)[:self.num_augs_return]
+
+        original_sample = self.originals[index]
+        label = self.labels[index]
+        augs = [self.augmentations[index,i] for i in aug_indices]
+        
+        return (*augs,original_sample,label)

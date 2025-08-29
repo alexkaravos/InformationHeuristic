@@ -1,3 +1,5 @@
+# @package _global_
+
 defaults:
   - /datasets: mnist
   - /models: resnet18
@@ -5,7 +7,7 @@ defaults:
   - _self_
 
 experiment_name: "mnist_simclr"
-device: "mps"
+device: "cuda"
 seed: 42
 save_dir: "weights/mnist/representations/simclr/"
 augmentation: mnist_aug1
@@ -17,4 +19,6 @@ representations:
   temperature: 0.4
   epochs: 100
   batch_size: 500
+  lr: 5e-3
+  gamma: 0.96 
 

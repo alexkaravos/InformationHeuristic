@@ -15,8 +15,9 @@ def run_temperature_sweep():
     """Run SimCLR training with different temperature values."""
     
     # List of temperatures to test
-    temperatures = [0.2 , 0.23, 0.26, 0.3 , 0.35, 0.4 , 0.46, 0.53, 0.61, 0.7]
-    
+    #temperatures = [0.2 , 0.23, 0.26, 0.3 , 0.35, 0.4 , 0.46, 0.53, 0.61, 0.7]
+    temperatures = [0.81,0.93]
+
     # Get the directory where this script is located
     script_dir = Path(__file__).parent
     train_script = script_dir / "train_simclr.py"
@@ -42,7 +43,7 @@ def run_temperature_sweep():
             result = subprocess.run([
                 sys.executable, 
                 str(train_script), 
-                f"experiments.mnist.representations.temperature={temp}"
+                f"representations.temperature={temp}"
             ], check=True, capture_output=False)
             
             print(f"Training completed successfully for temperature: {temp}")

@@ -26,10 +26,9 @@ def train_contrastive(model, dataloader, criterion, optimizer, epochs, device, s
         num_batches = 0
         
         # Create progress bar for batches
-        progress_bar = tqdm(enumerate(dataloader), total=len(dataloader), 
-                   desc=f'Epoch {epoch+1}/{epochs}')
         
-        for batch_idx, batch in progress_bar:
+        
+        for batch_idx, batch in enumerate(dataloader):
             x1,x2 = batch[0].to(device), batch[1].to(device)
             optimizer.zero_grad()
         
@@ -39,8 +38,7 @@ def train_contrastive(model, dataloader, criterion, optimizer, epochs, device, s
             
             total_loss += loss.item()
             
-            # Update progress bar with current loss
-            progress_bar.set_postfix({'Loss': f'{loss.item():.4f}'})
+            
         
         if scheduler:
             scheduler.step()

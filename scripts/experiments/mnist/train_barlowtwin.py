@@ -17,14 +17,6 @@ from src.evaluation.representations import compute_linear_eval
 @hydra.main(config_path="../../../configs", config_name="experiments/mnist/mnist_barlowtwin", version_base=None)
 def main(cfg: DictConfig):
 
-        # Print the composed config
-    print("--- Composed Hydra Config ---")
-    print(OmegaConf.to_yaml(cfg))
-    print("-----------------------------")
-
-    # Flatten the config
-    cfg = cfg.experiments.mnist
-
     # Print the composed config
     print("--- Composed Hydra Config ---")
     print(OmegaConf.to_yaml(cfg))
@@ -54,8 +46,22 @@ def main(cfg: DictConfig):
         augmented_dataset,
         batch_size=cfg.representations.batch_size,
         shuffle=True,
-        num_workers=10
+        num_workers=8
     )
+
+
+    #make sure the saving directory exists
+    save_dir = os.path.join(cfg.save_dir, f"barlowtwin_{cfg.models.arch}_{cfg.representations.lambda_param*1000:.2f}")
+    os.makedirs(save_dir, exist_ok=True)    
+    
+    model_args = {
+        "arch": cfg.models.arch,
+        "in_channels": cfg.models.in_channels,
+        "proj_dim": cfg.models.proj_dim,
+        "small_images": cfg.models.small_images
+    }
+    torch.save(model_args, f"{save_dir}/model_args.pt")
+    
     
     # Create model
     model = ResNetSSL(
@@ -75,6 +81,7 @@ def main(cfg: DictConfig):
     # Create loss function
     criterion = BarlowTwinsLoss(lambda_param=cfg.representations.lambda_param)
     
+    
     # Train model
     print(f"Starting training for {cfg.experiment_name}")
     print(f"Device: {device}")
@@ -84,12 +91,9 @@ def main(cfg: DictConfig):
     print(f"Augmentation: {cfg.augmentation}")
     print(f"Save directory: {cfg.save_dir}")
     
-    #make sure the saving directory exists
-    save_dir = os.path.join(cfg.save_dir, f"barlowtwin_{cfg.models.arch}_{cfg.representations.lambda_param*1000:.2f}")
-    os.makedirs(save_dir, exist_ok=True)    
     model.to(device)
     model.train()
-    trained_model = train_contrastive(
+    model, loss_history = train_contrastive(
         model=model,
         dataloader=train_loader,
         criterion=criterion,
@@ -101,6 +105,12 @@ def main(cfg: DictConfig):
     )
     
     # Save final model
+    torch.save(model.state_dict(), f"{save_dir}/model.pt")
+    torch.save(loss_history, f"{save_dir}/loss_history.pt")
+    #save the model configs
+
+    
+
     # get the full representations from the model
     
     #refetch the dataset but this time we want to return the normalized image
@@ -113,7 +123,7 @@ def main(cfg: DictConfig):
 
     with torch.no_grad():
         train_dataloader = DataLoader(
-            full_dataset,
+            train_dataset,
             batch_size=1000,
             shuffle=False,
         )
@@ -127,24 +137,22 @@ def main(cfg: DictConfig):
         train_labels = []
         test_labels = []
         for batch in train_dataloader:
-            features, _ = model(batch[0], return_features=True)
+            features, _ = model(batch[0].to(device), return_features=True)
             train_features.append(features)
             train_labels.append(batch[1])
         for batch in test_dataloader:
-            features, _ = model(batch[0], return_features=True)
+            features, _ = model(batch[0].to(device), return_features=True)
             test_features.append(features)
             test_labels.append(batch[1])
 
-    train_features = torch.cat(train_features, dim=0)
-    test_features = torch.cat(test_features, dim=0)
-    train_labels = torch.cat(train_labels, dim=0)
-    test_labels = torch.cat(test_labels, dim=0)
+    train_features = torch.cat(train_features, dim=0).cpu()
+    test_features = torch.cat(test_features, dim=0).cpu()
+    train_labels = torch.cat(train_labels, dim=0).cpu()
+    test_labels = torch.cat(test_labels, dim=0).cpu()
     #save the features and labels
-    torch.save(train_features, f"{save_dir}/train_features.pth")
-    torch.save(test_features, f"{save_dir}/test_features.pth")
-    torch.save(train_labels, f"{save_dir}/train_labels.pth")
-    torch.save(test_labels, f"{save_dir}/test_labels.pth")
     
+    torch.save(train_features, f"{save_dir}/train_features.pt")
+    torch.save(test_features, f"{save_dir}/test_features.pt")
     # Perform linear evaluation
     print("\n" + "="*50)
     print("Starting Linear Evaluation")
@@ -164,7 +172,8 @@ def main(cfg: DictConfig):
         'accuracy': accuracy,
         'nmi': nmi
     }
-    torch.save(eval_results, f"{save_dir}/linear_eval_results.pth")
+
+    torch.save(eval_results, f"{save_dir}/linear_eval_results.pt")
 
 if __name__ == "__main__":
     main()

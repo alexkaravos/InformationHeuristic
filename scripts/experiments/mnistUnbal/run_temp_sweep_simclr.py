@@ -9,13 +9,15 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-
+from tqdm import tqdm
 
 def run_temperature_sweep():
     """Run SimCLR training with different temperature values."""
     
     # List of temperatures to test
-    temperatures = [0.2 , 0.23, 0.26, 0.3 , 0.35, 0.4 , 0.46, 0.53, 0.61, 0.7]
+    temperatures = [0.036, 0.048, 0.064, 0.085, 0.113, 0.15,0.2, 0.266, 0.354,
+       0.471, 0.626, 0.832]
+    #, 0.3 , 0.35, 0.4 , 0.46, 0.53, 0.61, 0.7, 0.81,0.93]
     
     # Get the directory where this script is located
     script_dir = Path(__file__).parent
@@ -32,7 +34,8 @@ def run_temperature_sweep():
     failed_runs = []
     
     # Loop through each temperature
-    for temp in temperatures:
+    
+    for temp in tqdm(temperatures, desc="Training SimCLR Models"):
         print(f"\nStarting training with temperature: {temp}")
         print("=" * 60)
         
@@ -42,7 +45,12 @@ def run_temperature_sweep():
             result = subprocess.run([
                 sys.executable, 
                 str(train_script), 
-                f"experiments.mnistUnbal.representations.temperature={temp}"
+                f"representations.temperature={temp}",
+                f"representations.epochs=100",
+                f"representations.batch_size=1000",
+                f"representations.lr=3e-3",
+                f"representations.gamma=0.97"
+                
             ], check=True, capture_output=False)
             
             print(f"Training completed successfully for temperature: {temp}")

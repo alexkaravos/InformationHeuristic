@@ -45,7 +45,7 @@ def run_lambda_sweep():
             result = subprocess.run([
                 sys.executable, 
                 str(train_script), 
-                f"experiments.mnist.representations.lambda_param={lmbda}"
+                f"representations.lambda_param={lmbda}"
             ], check=True, capture_output=False)
             
             print(f"Training completed successfully for lambda: {lmbda}")

@@ -8,24 +8,7 @@ from src.datasets.datasets import speechcommands_dataset
 from src.utils.transforms import AudioTransform
 from tqdm import tqdm
 #specs
-#find the device if exists
-device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
-data_folder = "data/speechcommands"
-num_transforms = 10  # Reduced from 20 to manage memory
-
-class AugmentedWaveformDataset(torch.utils.data.Dataset):
-    def __init__(self,dataset,transform):
-        self.dataset = dataset
-        self.transform = transform
-    
-    def __len__(self):
-        return len(self.dataset)
-
-    def __getitem__(self,index):
-        waveform,label = self.dataset[index]
-        if self.transform:
-            waveform = self.transform(waveform)
-        return waveform,label
+#find the device if exist
 
     
 def get_wav2vec_representations(model,dataloader,device = "cuda"):

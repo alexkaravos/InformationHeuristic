@@ -1,3 +1,5 @@
+# @package _global_
+
 defaults:
   - /datasets: mnistUnbal
   - /models: resnet18
@@ -5,7 +7,7 @@ defaults:
   - _self_
 
 experiment_name: "mnistUnbal_simclr"
-device: "mps"
+device: "cuda"
 seed: 42
 save_dir: "weights/mnistUnbal/representations/simclr/"
 augmentation: mnist_aug1
@@ -15,5 +17,7 @@ models:
 
 representations:
   temperature: 0.4
-  epochs: 100
+  epochs: 200
   batch_size: 500
+  lr: 1e-3
+  gamma: 0.99

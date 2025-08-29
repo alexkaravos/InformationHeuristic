@@ -1,4 +1,2 @@
 # @package _global_
-
-datasets:
-  data_folder: "data/speechcommands"
+data_folder: "data/speechcommands"
