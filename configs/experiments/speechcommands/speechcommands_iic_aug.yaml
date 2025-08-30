@@ -8,7 +8,7 @@ defaults:
 experiment_name: "speechcommands_iic_aug"
 device: "cpu"
 seed: 42
-transform: AudioTransform
+transform: audio_transform
 save_dir: "weights/speechcommands/augmentation_clustering/iic_aug_trfmer/"
 save_name: "iic_aug"
 

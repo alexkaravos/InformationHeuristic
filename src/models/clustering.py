@@ -144,7 +144,7 @@ class Connected_Clusterer(nn.Module):
         return p
 
 
-def _create_temporal_embeddings(self, max_seq_len, hidden_dim):
+def create_temporal_embeddings(max_seq_len, hidden_dim):
     """Create sinusoidal temporal positional embeddings"""
     pe = torch.zeros(max_seq_len, hidden_dim)
     position = torch.arange(0, max_seq_len, dtype=torch.float).unsqueeze(1)
@@ -170,18 +170,18 @@ class TransformerClassifier(nn.Module):
 
         # Create temporal positional embeddings
         max_seq_len = 100  # Maximum sequence length
-        self.register_buffer("temporal_embeddings", self._create_temporal_embeddings(max_seq_len, hidden_dim))
+        self.register_buffer("temporal_embeddings", create_temporal_embeddings(max_seq_len, hidden_dim))
         
         self.projection_layer = nn.Linear(input_dim,hidden_dim)
 
         self.transformer_layer = nn.TransformerEncoderLayer(d_model=hidden_dim,
                                                             nhead=8,
                                                             dim_feedforward=dim_feedforward,
-                                                            dropout=dropout_rate)
+                                                            dropout=dropout_rate,
+                                                            batch_first=True)
         
         self.transformer_encoder = nn.TransformerEncoder(self.transformer_layer,
-                                                         num_layers=num_layers,
-                                                         batch_first=True
+                                                         num_layers=num_layers
                                                          )
         
         self.classifier = nn.Linear(hidden_dim,num_classes)
@@ -209,6 +209,7 @@ class Transformer_dict(nn.Module):
     def __init__(self,
                  K_range,
                  lamb_range,
+                 lamb_factor,
                  num_copies=1,
                  input_dim=768,
                  hidden_dim=768,
@@ -216,6 +217,8 @@ class Transformer_dict(nn.Module):
                  num_layers=2,
                  dropout_rate=0.1):
         super(Transformer_dict, self).__init__()
+
+        self.lamb_factor = lamb_factor
 
         keys = list(product(lamb_range,K_range,range(num_copies)))
         self.keys = keys

@@ -26,6 +26,7 @@ def main(cfg: DictConfig):
     # Get the speech commands dataset
     _,_,full_dataset = speechcommands_dataset(data_folder=cfg.data_folder)
 
+    #the audio transforms are a class
     transform = getattr(transforms, cfg.transform)
 
     augmented_dataset = DoubleAugmentedDataset(
@@ -34,22 +35,26 @@ def main(cfg: DictConfig):
         add_normalize=False
     )
 
-    #setup the model
+
     augmented_dataloader = DataLoader(augmented_dataset,batch_size=cfg.clustering.batch_size,shuffle=True)
 
     #load our pretrained representation model (wav2vec2)
     backbone_model = Wav2VecEncoder()
 
     #setup our clustering networks
+    k_range = range(cfg.models.k_start, cfg.models.k_end, cfg.models.k_step)
+    lamb_range = range(cfg.models.lamb_start, cfg.models.lamb_end, cfg.models.lamb_step)
     clustering_model = Transformer_dict(
-        K_range=cfg.clustering.k_range,
-        lamb_range=cfg.clustering.lamb_range,
-        num_copies=cfg.clustering.num_copies,
-        input_dim=cfg.clustering.input_dim,
-        hidden_dim=cfg.clustering.hidden_dim,
-        dim_feedforward=cfg.clustering.dim_feedforward,
-        num_layers=cfg.clustering.num_layers,
-        dropout_rate=cfg.clustering.dropout_rate
+        K_range=k_range,
+        lamb_range=lamb_range,
+        lamb_factor=cfg.models.lamb_factor,
+        num_copies=cfg.models.num_copies,
+        input_dim=cfg.models.input_dim,
+        hidden_dim=cfg.models.hidden_dim,
+        dim_feedforward=cfg.models.dim_feedforward,
+        num_layers=cfg.models.num_layers, 
+        dropout_rate=cfg.models.dropout_rate,
+     
     )
 
     #setup our clusterer
@@ -87,7 +92,8 @@ def main(cfg: DictConfig):
         epochs=cfg.clustering.epochs,
         device=device,
         save_dir=save_dir,
-        criterion=criterion
+        criterion=criterion,
+        internal_epoch_bar=True
     )
 
     # Get the predictions for the model

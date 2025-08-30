@@ -8,7 +8,8 @@ def train_paired_aug(model,
                      scheduler,
                      epochs,
                      device,
-                     save_dir):
+                     save_dir,
+                     internal_epoch_bar=False):
     """
     Train a clustering mesh with keys (lamb,K,idx)
     for an dataset with paired augmentations. The dataloader
@@ -23,11 +24,17 @@ def train_paired_aug(model,
 
     progress_bar = tqdm(range(epochs))
 
+
     for epoch in progress_bar:
 
         temp_loss_dict = {key:[] for key in model.keys}
 
-        for (x1,x2,x,y) in dataloader:
+        if internal_epoch_bar:
+            epoch_bar = tqdm(dataloader,desc=f"Epoch {epoch+1}/{epochs}")
+        else:
+            epoch_bar = dataloader
+
+        for (x1,x2,x,y) in epoch_bar:
 
             x1 = x1.to(device)
             x2 = x2.to(device)
