@@ -2,7 +2,7 @@
 
 defaults:
   - /datasets: cifar100
-  - /models: resnet50
+  - /models: resnet18
   - /representations: barlowtwin
   - _self_
 
@@ -16,12 +16,10 @@ augmentation: cifar_aug1
 representations:
   epochs: 100
   lr: 1e-3
-  scheduler: ExponentialLR
+  scheduler: CosineAnnealingLR
   gamma: 0.98
   batch_size: 1000
-  optimizer: sgd
-  momentum: 0.9
-  weight_decay: 1e-6
+  optimizer: LARS
 
 models:
   final_batchnorm: true

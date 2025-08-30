@@ -17,7 +17,7 @@ def run_temperature_sweep():
     # List of temperatures to test
     temperatures = [0.036, 0.048, 0.064, 0.085, 0.113, 0.15,0.2, 0.266, 0.354,
        0.471, 0.626, 0.832]
-    #, 0.3 , 0.35, 0.4 , 0.46, 0.53, 0.61, 0.7, 0.81,0.93]
+  
     
     # Get the directory where this script is located
     script_dir = Path(__file__).parent

@@ -12,8 +12,7 @@ from src.representations.losses import BarlowTwinsLoss
 from src.representations.training import train_contrastive
 from src.utils import transforms
 from src.evaluation.representations import compute_linear_eval,compute_knn_accuracy
-from src.optimizers.optimizers import get_optimizer
-
+from src.utils.optimizers import WarmupCosineAnnealingLR,LARS
 
 @hydra.main(config_path="../../../configs", config_name="experiments/cifar100/cifar100_barlowtwin", version_base=None)
 
@@ -75,11 +74,8 @@ def main(cfg: DictConfig):
     )
 
     # Create optimizer using new utility
-    optimizer = get_optimizer(model, cfg.representations)
-    if cfg.representations.scheduler == "ExponentialLR":
-        scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=cfg.representations.gamma)
-    else:
-        scheduler = None
+    optimizer = LARS(model.parameters(),lr=0.2*(cfg.representations.batch_size/256),weight_decay=1.5e-6,)
+    scheduler = WarmupCosineAnnealingLR(optimizer,total_epochs=cfg.representations.epochs,warmup_epochs=5)
     
     # Create loss function
     criterion = BarlowTwinsLoss(lambda_param=cfg.representations.lambda_param)

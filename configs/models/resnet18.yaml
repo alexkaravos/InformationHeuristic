@@ -3,4 +3,3 @@ in_channels: 3
 proj_dim: 128
 hidden_dim: 512
 small_images: true 
-final_batchnorm: false

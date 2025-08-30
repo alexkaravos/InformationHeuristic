@@ -11,7 +11,7 @@ class ResNetSSL(nn.Module):
     Supports different ResNet variants and input channels.
     """
     def __init__(self, arch='resnet18', in_channels=3, proj_dim=128,
-                small_images=False, final_batchnorm=False): 
+                small_images=False): 
         super(ResNetSSL, self).__init__()
         
         if arch == 'resnet18':
@@ -34,8 +34,8 @@ class ResNetSSL(nn.Module):
         
         self.backbone.fc = nn.Identity()
         
-        # Modified projection head to conditionally add final BN
-        projection_layers = [
+        # Projection head
+        self.projection_head = nn.Sequential(
             nn.Linear(backbone_dim, hidden_dim),
             nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
@@ -43,11 +43,7 @@ class ResNetSSL(nn.Module):
             nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, proj_dim)
-        ]
-        if final_batchnorm:
-            projection_layers.append(nn.BatchNorm1d(proj_dim))
-        
-        self.projection_head = nn.Sequential(*projection_layers)
+        )
         
     def forward(self, x, return_features=False):
         features = self.backbone(x)

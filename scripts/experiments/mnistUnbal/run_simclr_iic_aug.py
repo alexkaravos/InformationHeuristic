@@ -49,7 +49,9 @@ def run_simclr():
                 str(train_script), 
                 f"representation_model_id={representation_model_id}",
                 f"representation_model_dir={representation_model_path}",
-                f'clustering.num_aug_copies=5',
+                f'clustering.num_aug_copies=1',
+                f'clustering.epochs=50',
+                
                 
             ], check=True, capture_output=False)
             
