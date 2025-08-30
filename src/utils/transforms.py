@@ -79,3 +79,57 @@ class AudioTransform:
             
         return waveform
 
+
+def audio_transform(waveform, sample_rate=16000):
+    """
+    Function version of AudioTransform class.
+    Apply standard contrastive learning augmentations:
+    1. High-pass filter (20-800Hz cutoff) - p=0.5
+    2. Low-pass filter (1.2-8kHz cutoff) - p=0.5
+    3. Pitch shift (-2 to +2 semitones) - p=0.5
+    4. Time shift (-10% to +10% with rollover) - p=0.5
+    5. Volume/Gain change (-15dB to +5dB) - p=0.5
+    6. Polarity inversion - p=0.5
+    
+    Args:
+        waveform: Input audio waveform tensor
+        sample_rate: Sample rate of the audio (default: 16000)
+    
+    Returns:
+        Augmented waveform tensor
+    """
+    waveform = waveform.clone()
+    
+    # 1. High-pass filter (20-800Hz cutoff) - p=0.5
+    if torch.rand(1).item() < 0.5:
+        cutoff = torch.rand(1).item() * (800 - 20) + 20
+        waveform = F.highpass_biquad(waveform, sample_rate, cutoff_freq=cutoff)
+    
+    # 2. Low-pass filter (1.2-8kHz cutoff) - p=0.5  
+    if torch.rand(1).item() < 0.5:
+        cutoff = torch.rand(1).item() * (8000 - 1200) + 1200
+        waveform = F.lowpass_biquad(waveform, sample_rate, cutoff_freq=cutoff)
+    
+    # 3. Pitch shift (-2 to +2 semitones) - p=0.5
+    if torch.rand(1).item() < 0.5:
+        n_steps = torch.rand(1).item() * 4 - 2
+        waveform = F.pitch_shift(waveform, sample_rate, n_steps)
+    
+    # 4. Time shift (-25% to +25% with rollover) - p=0.5
+    if torch.rand(1).item() < 0.5:
+        shift_percent = torch.rand(1).item() * 0.5 - 0.10
+        shift_samples = int(shift_percent * waveform.shape[-1])
+        waveform = torch.roll(waveform, shift_samples, dims=-1)
+    
+    # 5. Volume/Gain change (-15dB to +5dB) - p=0.5
+    if torch.rand(1).item() < 0.5:
+        gain_db = torch.rand(1).item() * 20 - 15
+        gain_linear = 10 ** (gain_db / 20)
+        waveform = waveform * gain_linear
+    
+    # 6. Polarity inversion - p=0.5
+    if torch.rand(1).item() < 0.5:
+        waveform = -waveform
+        
+    return waveform
+

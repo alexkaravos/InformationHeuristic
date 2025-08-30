@@ -12,7 +12,9 @@ class Wav2VecEncoder(nn.Module):
         self.wav2vec2 = Wav2Vec2Model.from_pretrained(model_name)
 
     def forward(self, waveform):
-    
+        if len(waveform.shape) == 3:
+            waveform = waveform.squeeze(1)
+
         # The model returns a tuple of outputs, we only want the last hidden state
         outputs = self.wav2vec2(waveform)
         return outputs.last_hidden_state
