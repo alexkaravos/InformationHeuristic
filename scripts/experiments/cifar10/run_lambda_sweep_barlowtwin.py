@@ -15,10 +15,9 @@ def run_lambda_sweep():
     """Run Barlow Twins training with different lambda values."""
     
     # List of lambda values to test
-    lambda_values = [
-        0.0012, 0.0016, 0.00213, 0.00283, 0.00376, 0.005, 
-        0.00665, 0.00884, 0.01176, 0.01565, 0.02081
-    ]
+   # List of lambda values to test, divided by 1000 from your input
+    lambda_values = [0.0024, 0.0029, 0.0035, 0.0042, 0.005 , 0.006 , 0.0072, 0.0086,
+       0.0104]
     
     # Get the directory where this script is located
     script_dir = Path(__file__).parent
@@ -45,7 +44,7 @@ def run_lambda_sweep():
             result = subprocess.run([
                 sys.executable,
                 str(train_script),
-                f"experiments.cifar10.representations.lambda_param={lmbda}"
+                f"representations.lambda_param={lmbda}"
             ], check=True, capture_output=False)
             
             print(f"Training completed successfully for lambda: {lmbda}")

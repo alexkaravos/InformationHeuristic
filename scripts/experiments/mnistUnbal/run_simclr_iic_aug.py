@@ -15,8 +15,9 @@ def run_simclr():
     """Run Barlow Twins training with different lambda values."""
     
     # List of temperature values for contrastive learning
-    temperatures = [0.036, 0.048, 0.064, 0.085, 0.113, 0.15 , 0.2  , 0.266, 0.354,
-       0.471, 0.626, 0.832]
+    #temperatures = [0.036, 0.048, 0.064, 0.085, 0.113, 0.15 , 0.2  , 0.266, 0.354,
+    #   0.471, 0.626, 0.832]
+    temperatures = [0.354,0.471,0.626]
     #  0.46, 0.53, 0.61, 0.7,0.81,0.93]
     
     # Get the directory where this script is located
@@ -39,8 +40,7 @@ def run_simclr():
         temp = f"{temp*1000:.2f}"
         representation_model_id = f'simclr_r18_{temp}'
         representation_model_path = f'weights/mnistUnbal/representations/simclr/simclr_resnet18_{temp}'
-        
-        
+    
         try:
             # Run the training script with the current lambda
             # Using Hydra's override syntax to change the lambda_param
@@ -49,10 +49,11 @@ def run_simclr():
                 str(train_script), 
                 f"representation_model_id={representation_model_id}",
                 f"representation_model_dir={representation_model_path}",
-                f'clustering.num_aug_copies=1',
-                f'clustering.epochs=50',
-                
-                
+                f'clustering.num_aug_copies=5',
+                f'models.num_copies=5',
+                f'models.k_start=9',
+                f'models.k_end=12',
+                f'clustering.epochs=30',
             ], check=True, capture_output=False)
             
             print(f"Training completed successfully for lambda: {temp}")

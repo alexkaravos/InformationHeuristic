@@ -1,0 +1,30 @@
+data_folder: data/speechcommands
+models:
+  name: transformer_dict
+  num_layers: 2
+  input_dim: 768
+  dim_feedforward: 1024
+  dropout_rate: 0.1
+  num_copies: 1
+  lamb_factor: 1.1
+  lamb_start: 3
+  lamb_end: 5
+  lamb_step: 1
+  k_start: 35
+  k_end: 36
+  k_step: 1
+  hidden_dim: 256
+  num_hidden_blocks: 1
+experiment_name: speechcommands_iic_aug
+device: cuda
+seed: 42
+transform: audio_transform
+save_dir: weights/speechcommands/augmentation_clustering/iic_aug_trfmer/
+save_name: iic_aug
+clustering:
+  batch_size: 1000
+  epochs: 50
+  lr: 0.003
+  scheduler: ExponentialLR
+  gamma: 0.95
+  num_aug_copies: 5

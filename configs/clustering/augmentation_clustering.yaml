@@ -1,6 +1,6 @@
 name: "augmentation_clustering"
 lr: 1e-3
-scheduler: "ExponentialLR"
+scheduler: None
 gamma: 0.99
 epochs: 25
 batch_size: 2000

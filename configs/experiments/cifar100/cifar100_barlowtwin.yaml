@@ -14,12 +14,13 @@ augmentation: cifar_aug1
 
 
 representations:
-  epochs: 100
+  epochs: 200
   lr: 1e-3
   scheduler: CosineAnnealingLR
   gamma: 0.98
   batch_size: 1000
   optimizer: LARS
 
-models:
-  final_batchnorm: true
+models:  
+  proj_dim: 2048
+  hidden_dim: 2048

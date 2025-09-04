@@ -70,7 +70,6 @@ def main(cfg: DictConfig):
         in_channels=cfg.models.in_channels,
         proj_dim=cfg.models.proj_dim,
         small_images=cfg.models.small_images,
-        final_batchnorm=cfg.models.final_batchnorm if hasattr(cfg.models, 'final_batchnorm') else False
     )
 
     # Create optimizer using new utility

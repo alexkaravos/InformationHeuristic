@@ -51,7 +51,11 @@ class MlpClassifier(nn.Module):
     def forward(self,x):
 
         if len(x.shape) > 2:
-            x = x.reshape(x.size(0),-1)
+
+            #running a bs,n,d batch
+            bs,n,d = x.shape
+            x = x.reshape(bs*n,d)
+        else: n = False
 
         x = self.input_block(x)
 
@@ -60,6 +64,9 @@ class MlpClassifier(nn.Module):
                 x = block(x)
 
         x = self.output_block(x)
+
+        if n:
+            x = x.reshape(bs,n,-1)
 
         return x
     

@@ -70,3 +70,37 @@ class BarlowTwinsLoss(nn.Module):
         # Total loss
         loss = invariance_loss + self.lambda_param * redundancy_loss
         return loss
+    
+
+class mixedBarlowTwinsLoss(nn.Module):
+    def __init__(self, lambda_param=5e-3,):
+        super().__init__()
+        self.lambda_param = lambda_param
+
+    def forward(self, z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
+        """
+        Computes the Barlow Twins loss.
+        z1 and z2 are the augmented embeddings, shape: (batch_size, feature_dim).
+        """
+        assert z1.shape == z2.shape, "Input embeddings must have the same shape"
+        batch_size, feature_dim = z1.shape
+
+        # Normalize the embeddings along the batch dimension
+        z1_norm = (z1 - z1.mean(dim=0)) / (z1.std(dim=0) + 1e-5)
+        z2_norm = (z2 - z2.mean(dim=0)) / (z2.std(dim=0) + 1e-5)
+
+        # Cross-correlation matrix
+        c = torch.matmul(z1_norm.T, z2_norm) / batch_size
+
+        # Invariance term (diagonal elements should be 1)
+        on_diag = torch.diagonal(c)
+        invariance_loss = ((on_diag - 1)**2).sum()
+
+        # Redundancy reduction term (off-diagonal elements should be 0)
+        off_diag = c.clone()
+        off_diag.fill_diagonal_(0)
+        redundancy_loss = (off_diag**2).sum()
+
+        # Total loss
+        loss = invariance_loss + self.lambda_param * redundancy_loss
+        return loss

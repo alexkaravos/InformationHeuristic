@@ -18,9 +18,9 @@ representation_model_id: "simclr_200"
 
 models:
   in_channels: 1
-  lamb_start: -1
-  lamb_end: 8
-  lamb_factor: 1.15
+  lamb_start: 0
+  lamb_end: 10
+  lamb_factor: 1.05
   k_start: 8
   k_end: 13
   k_step: 1
@@ -29,6 +29,6 @@ models:
 
 clustering:
   batch_size: 1000
-  epochs: 30
-  lr: 5e-3
-  gamma: 0.9
+  epochs: 50
+  lr: 5e-4
+  gamma: 0.999

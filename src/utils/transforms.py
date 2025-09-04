@@ -1,6 +1,9 @@
+from ast import LShift
 import torchvision.transforms as transforms
 import torch
 import torchaudio.functional as F
+import torch_audiomentations as audiomentations
+import torch.nn as nn
 
 mnist_aug1 = transforms.Compose([
     transforms.RandomRotation(degrees=35),
@@ -13,123 +16,42 @@ mnist_aug1 = transforms.Compose([
 ])
 
 cifar_aug1 = transforms.Compose([
-    transforms.RandomResizedCrop(32,scale=(0.64, 1.0)),
+    transforms.RandomResizedCrop(32,scale=(0.2, 1.0)),
     transforms.RandomHorizontalFlip(p=0.5),
-    transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
+    transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)], p=0.8),
     transforms.RandomGrayscale(p=0.2),
     transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
 ])
 
+audio_transform = audiomentations.Compose([
+        audiomentations.HighPassFilter(min_cutoff_freq=20.0, max_cutoff_freq=800.0, p=0.5, sample_rate=16000,output_type="tensor"),
+        audiomentations.LowPassFilter(min_cutoff_freq=1200.0, max_cutoff_freq=8000.0, p=0.5, sample_rate=16000,output_type="tensor"),
+        audiomentations.PitchShift(min_transpose_semitones=-2.0, max_transpose_semitones=2.0, p=0.5, sample_rate=16000,output_type="tensor"),
+        audiomentations.Shift(min_shift=0.1, max_shift=0.1, p=0.5, rollover=True, sample_rate=16000,output_type="tensor"),
+        audiomentations.Gain(min_gain_in_db=-15.0, max_gain_in_db=5.0, p=0.5, sample_rate=16000,output_type="tensor"),
+        audiomentations.PolarityInversion(p=0.5, sample_rate=16000,output_type="tensor")
+    ])  
 
-#used for the speech commands dataset
-class AudioTransform:
-    """Standard audio augmentations 
-    call applies:
-    1. High-pass filter (20-800Hz cutoff) - p=0.5
-    2. Low-pass filter (1.2-8kHz cutoff) - p=0.5
-    3. Pitch shift (-2 to +2 semitones) - p=0.5
-    4. Time shift (-10% to +10% with rollover) - p=0.5
-    5. Volume/Gain change (-15dB to +5dB) - p=0.5
-    6. Polarity inversion - p=0.5
+
+class audio_transform_squeeze(nn.Module):
     """
-
-    def __init__(self, sample_rate=16000):
-        self.sample_rate = sample_rate
-    
-    def __call__(self, waveform):
-        """
-        Apply standard contrastive learning augmentations
-        Returns: augmented waveform
-        """
-        return self._apply_standard_augmentations(waveform.clone())
-    
-    def _apply_standard_augmentations(self, waveform):
-        """Apply standard augmentations from audio contrastive learning papers"""
-        
-        # 1. High-pass filter (20-800Hz cutoff) - p=0.5
-        if torch.rand(1).item() < 0.5:
-            cutoff = torch.rand(1).item() * (800 - 20) + 20
-            waveform = F.highpass_biquad(waveform, self.sample_rate, cutoff_freq=cutoff)
-        
-        # 2. Low-pass filter (1.2-8kHz cutoff) - p=0.5  
-        if torch.rand(1).item() < 0.5:
-            cutoff = torch.rand(1).item() * (8000 - 1200) + 1200
-            waveform = F.lowpass_biquad(waveform, self.sample_rate, cutoff_freq=cutoff)
-        
-        # 3. Pitch shift (-2 to +2 semitones) - p=0.5
-        if torch.rand(1).item() < 0.5:
-            n_steps = torch.rand(1).item() * 4 - 2
-            waveform = F.pitch_shift(waveform, self.sample_rate, n_steps)
-        
-        # 4. Time shift (-25% to +25% with rollover) - p=0.5
-        if torch.rand(1).item() < 0.5:
-            shift_percent = torch.rand(1).item() * 0.5 - 0.10
-            shift_samples = int(shift_percent * waveform.shape[-1])
-            waveform = torch.roll(waveform, shift_samples, dims=-1)
-        
-        # 5. Volume/Gain change (-15dB to +5dB) - p=0.5
-        if torch.rand(1).item() < 0.5:
-            gain_db = torch.rand(1).item() * 20 - 15
-            gain_linear = 10 ** (gain_db / 20)
-            waveform = waveform * gain_linear
-        
-        # 6. Polarity inversion - p=0.5
-        if torch.rand(1).item() < 0.5:
-            waveform = -waveform
-            
-        return waveform
-
-
-def audio_transform(waveform, sample_rate=16000):
+    A wrapper to add unsqueeze and squeeze operations around the
+    torch-audiomentations pipeline. This is useful for processing
+    single audio files that lack a batch dimension.
     """
-    Function version of AudioTransform class.
-    Apply standard contrastive learning augmentations:
-    1. High-pass filter (20-800Hz cutoff) - p=0.5
-    2. Low-pass filter (1.2-8kHz cutoff) - p=0.5
-    3. Pitch shift (-2 to +2 semitones) - p=0.5
-    4. Time shift (-10% to +10% with rollover) - p=0.5
-    5. Volume/Gain change (-15dB to +5dB) - p=0.5
-    6. Polarity inversion - p=0.5
-    
-    Args:
-        waveform: Input audio waveform tensor
-        sample_rate: Sample rate of the audio (default: 16000)
-    
-    Returns:
-        Augmented waveform tensor
-    """
-    waveform = waveform.clone()
-    
-    # 1. High-pass filter (20-800Hz cutoff) - p=0.5
-    if torch.rand(1).item() < 0.5:
-        cutoff = torch.rand(1).item() * (800 - 20) + 20
-        waveform = F.highpass_biquad(waveform, sample_rate, cutoff_freq=cutoff)
-    
-    # 2. Low-pass filter (1.2-8kHz cutoff) - p=0.5  
-    if torch.rand(1).item() < 0.5:
-        cutoff = torch.rand(1).item() * (8000 - 1200) + 1200
-        waveform = F.lowpass_biquad(waveform, sample_rate, cutoff_freq=cutoff)
-    
-    # 3. Pitch shift (-2 to +2 semitones) - p=0.5
-    if torch.rand(1).item() < 0.5:
-        n_steps = torch.rand(1).item() * 4 - 2
-        waveform = F.pitch_shift(waveform, sample_rate, n_steps)
-    
-    # 4. Time shift (-25% to +25% with rollover) - p=0.5
-    if torch.rand(1).item() < 0.5:
-        shift_percent = torch.rand(1).item() * 0.5 - 0.10
-        shift_samples = int(shift_percent * waveform.shape[-1])
-        waveform = torch.roll(waveform, shift_samples, dims=-1)
-    
-    # 5. Volume/Gain change (-15dB to +5dB) - p=0.5
-    if torch.rand(1).item() < 0.5:
-        gain_db = torch.rand(1).item() * 20 - 15
-        gain_linear = 10 ** (gain_db / 20)
-        waveform = waveform * gain_linear
-    
-    # 6. Polarity inversion - p=0.5
-    if torch.rand(1).item() < 0.5:
-        waveform = -waveform
+    def __init__(self, augmentations):
+        super().__init__()
+        self.augmentations = augmentations
+
+    def forward(self, waveform, sample_rate=16000):
+        # Add a batch dimension: (channels, samples) -> (batch, channels, samples)
+        waveform = waveform.unsqueeze(0)
         
-    return waveform
+        # Apply the augmentations
+        augmented_waveform = self.augmentations(samples=waveform, sample_rate=sample_rate)
+        
+        # Remove the batch dimension: (batch, channels, samples) -> (channels, samples)
+        augmented_waveform = augmented_waveform.squeeze(0)
+        
+        return augmented_waveform
 

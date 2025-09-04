@@ -60,10 +60,10 @@ class WarmupCosineAnnealingLR(_LRScheduler):
         warmup_epochs (int): The number of epochs for the linear warmup phase.
         last_epoch (int, optional): The index of the last epoch. Defaults to -1.
     """
-    def __init__(self, optimizer, total_epochs, warmup_epochs, last_epoch=-1, verbose=False):
+    def __init__(self, optimizer, total_epochs, warmup_epochs, last_epoch=-1):
         self.total_epochs = total_epochs
         self.warmup_epochs = warmup_epochs
-        super().__init__(optimizer, last_epoch, verbose)
+        super().__init__(optimizer, last_epoch)
 
     def get_lr(self):
         """

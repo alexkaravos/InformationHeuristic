@@ -11,6 +11,7 @@ from src.datasets.datasets import speechcommands_dataset
 from src.datasets.dataset_wrappers import DoubleAugmentedDataset,AugRepresentationDataset
 from src.models import resnet
 from src.utils import transforms
+from src.utils.transforms import audio_transform_squeeze
 from src.models.wav2vec import Wav2VecEncoder
 from src.models.clustering import Transformer_dict,Connected_Clusterer
 from src.clustering.training import train_paired_aug
@@ -28,6 +29,11 @@ def main(cfg: DictConfig):
 
     #the audio transforms are a class
     transform = getattr(transforms, cfg.transform)
+    transform = audio_transform_squeeze(transform)
+    #get a sample waveforms
+    x,y = full_dataset[0]
+    #tes the time to apply the transform on a waveform
+
 
     augmented_dataset = DoubleAugmentedDataset(
         dataset = full_dataset,
@@ -35,8 +41,11 @@ def main(cfg: DictConfig):
         add_normalize=False
     )
 
+    augmented_dataloader = DataLoader(augmented_dataset,
+                                      batch_size=cfg.clustering.batch_size,
+                                      shuffle=True,
+                                      num_workers=20)
 
-    augmented_dataloader = DataLoader(augmented_dataset,batch_size=cfg.clustering.batch_size,shuffle=True)
 
     #load our pretrained representation model (wav2vec2)
     backbone_model = Wav2VecEncoder()
@@ -57,16 +66,14 @@ def main(cfg: DictConfig):
      
     )
 
-    #setup our clusterer
-    model = Connected_Clusterer(
-        backbone=backbone_model,
-        clusterer=clustering_model
-    )
-    
     # Set device and seed
     device = cfg.device
     torch.manual_seed(cfg.seed)
     
+    model = Connected_Clusterer(
+        backbone=backbone_model,
+        clusterer=clustering_model
+    )
     model.to(device)
     
     # Set up the saving directory
@@ -131,4 +138,5 @@ def main(cfg: DictConfig):
 
 
 if __name__ == "__main__":
+
     main()  

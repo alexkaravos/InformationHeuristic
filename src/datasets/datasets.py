@@ -453,6 +453,7 @@ def speechcommands_dataset(data_folder):
         test_labels.append(speech_labels.index(label))
 
     test_waveforms = torch.stack(test_waveforms)
+    
     test_labels = torch.tensor(test_labels)
 
     train_dataset = torch.utils.data.TensorDataset(train_waveforms,train_labels)
